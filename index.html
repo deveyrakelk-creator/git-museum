@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>山东大学博物馆智慧导览与安防巡检平台</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="paper-noise"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="cursor-trail-layer" id="cursorTrailLayer"></div>
+  <div class="cursor-badge" id="cursorBadge"><img src="./assets/new_decor/sdu_ic_cursor.png" alt="SDU_IC" /></div>
+
+  <header class="site-header" id="siteHeader">
+    <a href="#home" class="brand">
+      <span class="brand-seal">山博</span>
+      <span class="brand-copy">
+        <strong>山东大学博物馆</strong>
+        <small>SMART GUIDE & SECURITY SYSTEM</small>
+      </span>
+    </a>
+    <nav class="nav">
+      <a href="#home" class="active">首页</a>
+      <a href="#overview">系统概览</a>
+      <a href="#collections">馆藏导览</a>
+      <a href="#monitor-detail">实时监控</a>
+      <a href="#route-detail">路线规划</a>
+      <a href="#project">项目说明</a>
+    </nav>
+    <div class="header-tools">
+      <span class="status-pill">在线展示</span>
+      <button id="backTopInline" class="ghost-btn">回到顶部</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section-reveal" id="home">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-ornament left"></div>
+      <div class="hero-ornament right"></div>
+
+      <div class="hero-shell interactive-card" data-tilt>
+        <div class="hero-stage">
+          <div class="hero-generated-bg parallax" data-depth="4"></div>
+          <div class="hero-frame parallax" data-depth="10"></div>
+          <div class="hero-watermark parallax" data-depth="8"></div>
+
+          <div class="hero-copy parallax" data-depth="5">
+            <div class="eyebrow">MUSEUM GUIDE SYSTEM</div>
+            <h1 class="hero-main-title">山东大学博物馆智慧导览与安防巡检平台</h1>
+            <p>
+              融合实时监控、展厅导览、环境雷达测绘与馆藏讲解，
+              以现代新中式文博风格重构山东大学博物馆数字化展示体验。
+            </p>
+            <div class="hero-actions">
+              <a class="btn primary" href="#overview">浏览系统概览</a>
+              <a class="btn secondary" href="#collections">查看馆藏珍品</a>
+            </div>
+            <div class="hero-meta">
+              <div><strong>4</strong><span>主馆藏分类</span></div>
+              <div><strong>3</strong><span>核心系统模块</span></div>
+              <div><strong>1</strong><span>统一导览主线</span></div>
+            </div>
+          </div>
+
+          <div class="hero-carousel parallax" data-depth="16" aria-label="首页文物轮播">
+            <button class="carousel-arrow prev" id="heroPrevBtn" type="button" aria-label="上一件文物">‹</button>
+            <button class="carousel-arrow next" id="heroNextBtn" type="button" aria-label="下一件文物">›</button>
+            <div class="artifact-preview prev"><img id="carouselPrev" src="./assets/cutouts/exam_scroll.png" alt="上一件文物预览" /></div>
+            <div class="artifact-main"><img id="carouselCurrent" src="./assets/cutouts/sancai_tripod.png" alt="轮播文物" /></div>
+            <div class="artifact-preview next"><img id="carouselNext" src="./assets/cutouts/jade_head.png" alt="下一件文物预览" /></div>
+            <div class="carousel-controls">
+              <div class="carousel-dots" id="carouselDots"></div>
+              <div class="carousel-track"><span id="carouselTrack"></span></div>
+              <span class="carousel-count" id="carouselCount">01 / 04</span>
+            </div>
+          </div>
+
+          <div class="hero-tag hero-tag-b parallax" data-depth="14">视频监控 / 雷达测绘 / 馆藏导览 / 路线规划</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="overview section-reveal" id="overview">
+      <div class="section-head center">
+        <img class="title-art section-title-img" src="./assets/titles/title_overview.png" alt="系统概览" />
+        <p>先看系统概况，再点击对应模块按钮平滑定位到下方具体展示区。</p>
+      </div>
+      <div class="overview-grid">
+        <article class="overview-card interactive-card" data-tilt>
+          <div class="card-topline"><span>01</span> 实时监控</div>
+          <img class="module-deco-icon" src="./assets/new_decor/icon_monitor.png" alt="" aria-hidden="true" />
+          <div class="overview-preview ink-bg">
+            <img src="./assets/artifacts/hero_painting.jpg" alt="实时监控预览" />
+            <div class="live-indicator">● 在线</div>
+          </div>
+          <h3>展厅实时画面</h3>
+          <p>接入 ESP32-CAM 实时画面，呈现展厅巡检状态、网络连接情况与今日录像数据。</p>
+          <div class="overview-stats"><span>设备状态：正常</span><span>连接状态：良好</span></div>
+          <button class="btn text-btn jump-btn" data-target="#monitor-detail">查看详细模块</button>
+        </article>
+
+        <article class="overview-card interactive-card" data-tilt>
+          <div class="card-topline"><span>02</span> 环境测绘</div>
+          <img class="module-deco-icon" src="./assets/new_decor/icon_route.png" alt="" aria-hidden="true" />
+          <div class="overview-preview radar-preview">
+            <canvas id="radarMiniCanvas" width="420" height="220"></canvas>
+          </div>
+          <h3>超声波雷达扫描</h3>
+          <p>动态展示前方障碍物、扫描角度与楼层环境信息，可用于小车导览避障场景展示。</p>
+          <div class="overview-stats"><span>扫描范围：120m</span><span>分辨率：2.5cm</span></div>
+          <button class="btn text-btn jump-btn" data-target="#radar-detail">查看详细模块</button>
+        </article>
+
+        <article class="overview-card interactive-card" data-tilt>
+          <div class="card-topline"><span>03</span> 导览路线</div>
+          <img class="module-deco-icon" src="./assets/new_decor/icon_guide.png" alt="" aria-hidden="true" />
+          <div class="overview-preview route-preview">
+            <div class="route-mini-line">
+              <span class="active">序厅</span><span>青铜器</span><span>书画</span><span>陶瓷器</span><span>玉石器</span><span>尾厅</span>
+            </div>
+          </div>
+          <h3>展厅导览与路线规划</h3>
+          <p>以清晰的参观动线组织讲解内容，用户点击按钮即可跳转到下方对应模块，形成完整浏览逻辑。</p>
+          <div class="overview-stats"><span>推荐路线：3 条</span><span>无障碍模式：支持</span></div>
+          <button class="btn text-btn jump-btn" data-target="#route-detail">查看详细模块</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="collections section-reveal" id="collections">
+      <div class="section-head center">
+        <img class="title-art section-title-img" src="./assets/titles/title_collections.png" alt="馆藏导览" />
+        <p>首页主入口固定为青铜器、书画、陶瓷器、玉石器；点击分类后切换到下方对应专题内容。</p>
+      </div>
+      <div class="category-grid">
+        <button class="category-card active interactive-card" data-tilt data-category="bronze">
+          <div class="category-folder"></div>
+          <img src="./assets/artifacts/cat_bronze.jpg" alt="青铜器" />
+          <div class="category-mask"></div>
+          <div class="category-copy">
+            <h3>青铜器</h3>
+            <p>128 件</p>
+            <small>BRONZE</small>
+          </div>
+        </button>
+        <button class="category-card interactive-card" data-tilt data-category="painting">
+          <div class="category-folder"></div>
+          <img src="./assets/artifacts/cat_painting.jpg" alt="书画" />
+          <div class="category-mask"></div>
+          <div class="category-copy">
+            <h3>书画</h3>
+            <p>152 件</p>
+            <small>PAINTING</small>
+          </div>
+        </button>
+        <button class="category-card interactive-card" data-tilt data-category="ceramic">
+          <div class="category-folder"></div>
+          <img src="./assets/artifacts/cat_ceramic.jpg" alt="陶瓷器" />
+          <div class="category-mask"></div>
+          <div class="category-copy">
+            <h3>陶瓷器</h3>
+            <p>96 件</p>
+            <small>CERAMIC</small>
+          </div>
+        </button>
+        <button class="category-card interactive-card" data-tilt data-category="jade">
+          <div class="category-folder"></div>
+          <img src="./assets/artifacts/cat_jade.jpg" alt="玉石器" />
+          <div class="category-mask"></div>
+          <div class="category-copy">
+            <h3>玉石器</h3>
+            <p>52 件</p>
+            <small>JADE</small>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section class="collection-detail section-reveal" id="collectionDetail">
+      <div class="detail-bg"></div>
+      <div class="detail-layout">
+        <aside class="detail-side">
+          <span class="section-en" id="detailEn">BRONZE COLLECTION</span>
+          <h2 id="detailTitle">青铜器馆藏</h2>
+          <p id="detailDesc">青铜器以礼器、乐器与实用器为代表，体现古代铸造工艺与礼制文明。</p>
+          <div class="detail-tags" id="detailTags"></div>
+          <div class="detail-switcher" aria-label="馆藏分类切换">
+            <button data-switch="bronze" class="active">青铜器</button>
+            <button data-switch="painting">书画</button>
+            <button data-switch="ceramic">陶瓷器</button>
+            <button data-switch="jade">玉石器</button>
+          </div>
+          <div class="detail-actions">
+            <a href="#collections" class="btn primary">返回分类入口</a>
+            <button id="moreCollectionsBtn" class="btn secondary">更多馆藏</button>
+          </div>
+          <div class="detail-side-note">
+            <span>专题说明</span>
+            <p id="detailNote">点击上方分类卡片，页面会在同一长页面内切换专题内容，并保留统一导览体验。</p>
+          </div>
+        </aside>
+
+        <div class="detail-main interactive-card" data-tilt>
+          <div class="spotlight-bg"></div>
+          <div class="spotlight-header">
+            <span class="section-mini">精选文物</span>
+            <strong id="spotlightBadge">礼制文明</strong>
+          </div>
+          <div class="spotlight-content">
+            <div class="spotlight-visual">
+              <img id="spotlightImage" src="./assets/artifacts/bronze_ding.jpg" alt="重点文物" />
+            </div>
+            <div class="spotlight-copy">
+              <h3 id="spotlightTitle">商·兽面纹尊</h3>
+              <p id="spotlightDesc">器身饰兽面纹与夔龙纹，造型庄重，是礼乐文明的重要见证。</p>
+              <ul id="spotlightFacts"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-cards" id="detailCards"></div>
+      </div>
+      <div class="more-strip" id="moreStrip"></div>
+    </section>
+
+    <section class="module-monitor section-reveal" id="monitor-detail">
+      <div class="module-head left">
+        <img class="title-art section-title-img left-img" src="./assets/titles/title_monitor.png" alt="实时监控" />
+        <p>模块化呈现监控画面、接入状态与当前巡检展位，作为三大系统模块中的第一部分。</p>
+      </div>
+      <div class="module-grid two-col">
+        <article class="panel camera-panel interactive-card" data-tilt>
+          <div class="panel-kicker"><span>实时监控</span><small>主展厅A · 西南角</small></div>
+          <div class="camera-shell">
+            <img id="stream" alt="ESP32-CAM 实时画面" />
+            <div id="streamPlaceholder" class="stream-placeholder">
+              <strong>CAM</strong>
+              <p>等待视频流信号，连接成功后画面将实时显示在此处。</p>
+            </div>
+          </div>
+          <div class="camera-meta">
+            <div><small>设备状态</small><strong>正常运行</strong></div>
+            <div><small>连接状态</small><strong>良好</strong></div>
+            <div><small>存储状态</small><strong>充足</strong></div>
+            <div><small>今日录像</small><strong>12.6 GB</strong></div>
+          </div>
+          <div class="camera-actions">
+            <button id="reconnectBtn" class="btn secondary">重新接入</button>
+            <button id="fullscreenBtn" class="btn primary">进入监控大屏</button>
+          </div>
+        </article>
+
+
+      </div>
+    </section>
+
+    <section class="radar-detail section-reveal" id="radar-detail">
+      <div class="module-grid radar-detail-grid">
+        <article class="panel radar-large interactive-card" data-tilt>
+          <div class="panel-kicker"><span>超声波雷达测绘</span><small>实时避障状态</small></div>
+          <canvas id="radarLargeCanvas" width="760" height="400"></canvas>
+        </article>
+        <article class="panel radar-data interactive-card" data-tilt>
+          <div class="panel-kicker"><span>扫描数据</span><small>RADAR DATA</small></div>
+          <div class="data-list">
+            <div><small>当前角度</small><strong id="angleText">72°</strong></div>
+            <div><small>当前距离</small><strong id="distanceText">35 cm</strong></div>
+            <div><small>前方</small><strong id="frontText">42 cm</strong></div>
+            <div><small>左侧</small><strong id="leftText">68 cm</strong></div>
+            <div><small>右侧</small><strong id="rightText">53 cm</strong></div>
+            <div><small>避障建议</small><strong id="suggestText">SAFE</strong></div>
+          </div>
+          <p class="panel-note">该区域保留了后续接入真实雷达数据的空间，目前通过前端模拟动画完成可视化展示。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="route-detail section-reveal" id="route-detail">
+      <div class="module-head center">
+        <img class="title-art section-title-img" src="./assets/titles/title_route2.png" alt="展厅导览与路线规划" />
+        <p>以展区动线为核心，将摄像头视角、雷达避障与文物讲解串联为完整导览流程。</p>
+      </div>
+      <div class="route-board interactive-card" data-tilt>
+        <div class="route-board-top">
+          <div class="route-intro">
+            <h3>推荐参观路线：文物精华路线</h3>
+            <p>序厅 → 青铜器 → 书画 → 陶瓷器 → 玉石器 → 尾厅。将鼠标移至任意站点，可高亮当前导览节点。</p>
+          </div>
+          <div class="route-modes">
+            <span>语音导览</span>
+            <span>路线规划</span>
+            <span>无障碍模式</span>
+          </div>
+        </div>
+        <div class="route-line-large" id="routeLineLarge">
+          <div class="route-stop current" data-route="lobby" tabindex="0" role="button"><b>01</b><span>序厅</span></div>
+          <div class="route-stop" data-route="bronze" tabindex="0" role="button"><b>02</b><span>青铜器</span></div>
+          <div class="route-stop" data-route="painting" tabindex="0" role="button"><b>03</b><span>书画</span></div>
+          <div class="route-stop" data-route="ceramic" tabindex="0" role="button"><b>04</b><span>陶瓷器</span></div>
+          <div class="route-stop" data-route="jade" tabindex="0" role="button"><b>05</b><span>玉石器</span></div>
+          <div class="route-stop" data-route="exit" tabindex="0" role="button"><b>06</b><span>尾厅</span></div>
+        </div>
+        <div class="route-current-note" id="routeCurrentNote">
+          <span>当前站点</span>
+          <strong>序厅</strong>
+          <p>参观起点，用于了解山东大学博物馆智慧导览与安防巡检平台的整体功能。</p>
+        </div>
+        <div class="selected-route-box" id="selectedRouteBox">
+          <span>已选讲解点</span>
+          <p>点击文物详情中的“加入导览路线”，这里会显示已加入的展品。</p>
+          <div class="selected-route-list" id="selectedRouteList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="project section-reveal" id="project">
+      <div class="module-grid two-col">
+        <article class="panel logs-panel">
+          <div class="module-head left compact">
+            <img class="title-art small-title-img" src="./assets/titles/title_logs.png" alt="系统巡检日志" />
+          </div>
+          <div class="timeline dynamic-log" id="patrolTimeline" aria-live="polite">
+            <article class="normal"><time>10:25:18</time><b>摄像头接入</b><p>摄像头模块连接成功，实时监控画面等待刷新。</p></article>
+            <article class="route"><time>10:25:31</time><b>路线状态</b><p>导览路线运行中，当前节点可随路线模块切换。</p></article>
+            <article class="warn"><time>10:25:26</time><b>避障提醒</b><p>检测到前方障碍物，系统建议低速巡检。</p></article>
+          </div>
+        </article>
+        <article class="panel about-panel">
+          <div class="module-head left compact">
+            <img class="title-art small-title-img" src="./assets/titles/title_project.png" alt="项目说明与团队分工" />
+          </div>
+          <div class="team-grid">
+            <div><b>视觉与前端</b><p>负责文博风界面设计、分类联动、交互效果与网页整体展示。</p></div>
+            <div><b>实时监控</b><p>ESP32-CAM 上传视频帧，Node.js 服务端转发，网页端展示实时画面。</p></div>
+            <div><b>雷达模块</b><p>ESP32 控制舵机与超声波模块，完成扫描测距与网页雷达图联动。</p></div>
+            <div><b>导览逻辑</b><p>组织四类馆藏、讲解文案、展厅动线与系统日志展示。</p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+
+  <aside class="quick-dock" aria-label="快速导航">
+    <a href="#home">首页</a>
+    <a href="#overview">概览</a>
+    <a href="#collections">馆藏</a>
+    <a href="#monitor-detail">监控</a>
+    <a href="#route-detail">路线</a>
+    <a href="#project">项目</a>
+  </aside>
+
+  <aside class="team-float" id="teamFloat" aria-label="研发团队">
+    <button class="team-float-btn" id="teamFloatBtn" type="button" aria-expanded="false">
+      <span class="team-icon">山</span>
+      <span class="team-btn-copy"><strong>研发团队</strong><small>邓洁 · 耿泽昊 · 马晓鹏 · 申海天 · 杨涛</small></span>
+    </button>
+    <div class="team-panel" id="teamPanel" aria-hidden="true">
+      <button class="team-close" id="teamCloseBtn" type="button" aria-label="关闭团队信息">×</button>
+      <h3>研发团队</h3>
+      <small>TEAM MEMBERS</small>
+      <ul>
+        <li>邓洁</li>
+        <li>耿泽昊</li>
+        <li>马晓鹏</li>
+        <li>申海天</li>
+        <li>杨涛</li>
+      </ul>
+    </div>
+  </aside>
+
+  <div class="artifact-modal" id="artifactModal" aria-hidden="true">
+    <div class="artifact-modal-backdrop" data-close-modal></div>
+    <article class="artifact-modal-card">
+      <button class="modal-close" data-close-modal>×</button>
+      <div class="modal-image-wrap"><img id="modalImage" alt="展品详情" /></div>
+      <div class="modal-content">
+        <span class="section-mini">ARTIFACT DETAIL</span>
+        <h2 id="modalTitle">展品名称</h2>
+        <div class="modal-tags" id="modalTags"></div>
+        <p id="modalDesc"></p>
+        <div class="modal-info-grid">
+          <div><small>所属展区</small><strong id="modalCategory">馆藏</strong></div>
+          <div><small>文物类型</small><strong id="modalType">馆藏文物</strong></div>
+          <div><small>主要看点</small><strong id="modalFocus">器形与纹饰</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary" id="addRouteBtn" type="button">加入导览路线</button>
+          <button class="btn secondary" data-close-modal>关闭详情</button>
+        </div>
+      </div>
+    </article>
+  </div>
+  <div class="route-toast" id="routeToast" aria-live="polite"></div>
+  <button id="backTop" class="back-top">↑</button>
+  <script src="./app.js"></script>
+</body>
+</html>
