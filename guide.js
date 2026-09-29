@@ -23,12 +23,19 @@ function setUser(user){state.epoch++;$('password-tools').hidden=!state.recoverin
 function pathText(stops){return stops.map(s=>state.config.stations[s].name).join(' → ');}
 function planContent(plan){const fragment=document.createDocumentFragment();fragment.append(element('h3',plan.title),element('p',pathText(plan.stops),'route-path'),element('p',plan.reason),element('p',styles[plan.explanation_style]+' · 仅模拟执行','muted'));return fragment;}
 
-function stopSpeech(){if('speechSynthesis' in window)window.speechSynthesis.cancel();}
+let speechRun=0;
+function stopSpeech(){speechRun++;if('speechSynthesis' in window)window.speechSynthesis.cancel();}
+function narrationVoice(){
+  const voices=window.speechSynthesis.getVoices().filter(v=>/^zh/i.test(v.lang));
+  const score=voice=>{const name=voice.name.toLowerCase();return (name.includes('xiaoxiao')?100:0)+(name.includes('xiaoyi')?90:0)+(name.includes('yunxi')?80:0)+(name.includes('natural')?40:0)+(name.includes('online')?20:0)+(voice.localService?5:0);};
+  return voices.sort((a,b)=>score(b)-score(a))[0];
+}
 function speak(text){
-  if(!('speechSynthesis' in window))throw new Error('当前浏览器不支持语音朗读');
-  stopSpeech();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=.95;
-  const voice=window.speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang));if(voice)utterance.voice=voice;
-  window.speechSynthesis.speak(utterance);
+  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))throw new Error('当前浏览器不支持语音朗读');
+  stopSpeech();const run=speechRun;const sentences=(String(text).match(/[^。！？；…]+[。！？；…]?/g)||[String(text)]).map(s=>s.trim()).filter(Boolean);let index=0;
+  const playNext=()=>{if(run!==speechRun||index>=sentences.length)return;const sentence=sentences[index++];const utterance=new SpeechSynthesisUtterance(sentence);utterance.lang='zh-CN';utterance.voice=narrationVoice()||null;utterance.volume=1;utterance.rate=sentence.endsWith('？')?0.9:0.88;utterance.pitch=sentence.endsWith('？')?1.08:1.02;
+    utterance.onend=()=>{const pause=/[！？]$/.test(sentence)?260:/[。…]$/.test(sentence)?190:120;setTimeout(playNext,pause);};utterance.onerror=event=>{if(event.error!=='canceled')tell('语音朗读被浏览器中断，请重试。',true);};window.speechSynthesis.speak(utterance);};
+  playNext();
 }
 function renderNarration(){
   const panel=$('ai');const narration=state.narration;
