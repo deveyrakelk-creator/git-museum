@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8" /><meta name="referrer" content="no-referrer" /><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://dfyhuzbbmcjqhvymkafo.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>山东大学博物馆智慧导览与安防巡检平台</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css" /><link rel="stylesheet" href="./guide.css" />
 </head>
 <body>
   <div class="paper-noise"></div>
@@ -29,7 +29,7 @@
       <a href="#project">项目说明</a>
     </nav>
     <div class="header-tools">
-      <span class="status-pill">在线展示</span>
+      <a class="status-pill" href="#guide-center">我的导览 / 登录</a>
       <button id="backTopInline" class="ghost-btn">回到顶部</button>
     </div>
   </header>
@@ -55,7 +55,7 @@
               以现代新中式文博风格重构山东大学博物馆数字化展示体验。
             </p>
             <div class="hero-actions">
-              <a class="btn primary" href="#overview">浏览系统概览</a>
+              <a class="btn primary" href="#guide-center">定制我的导览</a>
               <a class="btn secondary" href="#collections">查看馆藏珍品</a>
             </div>
             <div class="hero-meta">
@@ -94,11 +94,11 @@
           <img class="module-deco-icon" src="./assets/new_decor/icon_monitor.png" alt="" aria-hidden="true" />
           <div class="overview-preview ink-bg">
             <img src="./assets/artifacts/hero_painting.jpg" alt="实时监控预览" />
-            <div class="live-indicator">● 在线</div>
+            <div class="live-indicator">● 展示预览</div>
           </div>
           <h3>展厅实时画面</h3>
           <p>接入 ESP32-CAM 实时画面，呈现展厅巡检状态、网络连接情况与今日录像数据。</p>
-          <div class="overview-stats"><span>设备状态：正常</span><span>连接状态：良好</span></div>
+          <div class="overview-stats"><span>设备状态：未连接</span><span>连接状态：展示模式</span></div>
           <button class="btn text-btn jump-btn" data-target="#monitor-detail">查看详细模块</button>
         </article>
 
@@ -110,7 +110,7 @@
           </div>
           <h3>超声波雷达扫描</h3>
           <p>动态展示前方障碍物、扫描角度与楼层环境信息，可用于小车导览避障场景展示。</p>
-          <div class="overview-stats"><span>扫描范围：120m</span><span>分辨率：2.5cm</span></div>
+          <div class="overview-stats"><span>扫描范围：示意</span><span>数据来源：模拟</span></div>
           <button class="btn text-btn jump-btn" data-target="#radar-detail">查看详细模块</button>
         </article>
 
@@ -124,7 +124,7 @@
           </div>
           <h3>展厅导览与路线规划</h3>
           <p>以清晰的参观动线组织讲解内容，用户点击按钮即可跳转到下方对应模块，形成完整浏览逻辑。</p>
-          <div class="overview-stats"><span>推荐路线：3 条</span><span>无障碍模式：支持</span></div>
+          <div class="overview-stats"><span>推荐路线：3 条</span><span>路线类型：示意</span></div>
           <button class="btn text-btn jump-btn" data-target="#route-detail">查看详细模块</button>
         </article>
       </div>
@@ -242,10 +242,10 @@
             </div>
           </div>
           <div class="camera-meta">
-            <div><small>设备状态</small><strong>正常运行</strong></div>
-            <div><small>连接状态</small><strong>良好</strong></div>
-            <div><small>存储状态</small><strong>充足</strong></div>
-            <div><small>今日录像</small><strong>12.6 GB</strong></div>
+            <div><small>设备状态</small><strong>未连接</strong></div>
+            <div><small>连接状态</small><strong>未连接</strong></div>
+            <div><small>存储状态</small><strong>未接入</strong></div>
+            <div><small>今日录像</small><strong>未接入</strong></div>
           </div>
           <div class="camera-actions">
             <button id="reconnectBtn" class="btn secondary">重新接入</button>
@@ -260,7 +260,7 @@
     <section class="radar-detail section-reveal" id="radar-detail">
       <div class="module-grid radar-detail-grid">
         <article class="panel radar-large interactive-card" data-tilt>
-          <div class="panel-kicker"><span>超声波雷达测绘</span><small>实时避障状态</small></div>
+          <div class="panel-kicker"><span>超声波雷达测绘</span><small>模拟扫描状态</small></div>
           <canvas id="radarLargeCanvas" width="760" height="400"></canvas>
         </article>
         <article class="panel radar-data interactive-card" data-tilt>
@@ -281,7 +281,7 @@
     <section class="route-detail section-reveal" id="route-detail">
       <div class="module-head center">
         <img class="title-art section-title-img" src="./assets/titles/title_route2.png" alt="展厅导览与路线规划" />
-        <p>以展区动线为核心，将摄像头视角、雷达避障与文物讲解串联为完整导览流程。</p>
+        <p>馆藏浏览动线示意。下方“我的导览”支持账号收藏与 A/B/C 模拟小车任务，两者不等同于真实轨道。</p>
       </div>
       <div class="route-board interactive-card" data-tilt>
         <div class="route-board-top">
@@ -310,20 +310,33 @@
         </div>
         <div class="selected-route-box" id="selectedRouteBox">
           <span>已选讲解点</span>
-          <p>点击文物详情中的“加入导览路线”，这里会显示已加入的展品。</p>
+          <p>点击文物详情中的“加入导览兴趣”，可将兴趣带入下方个人导览；生成后点击收藏才会保存到账号。</p>
           <div class="selected-route-list" id="selectedRouteList"></div>
         </div>
       </div>
     </section>
 
-    <section class="project section-reveal" id="project">
+    <section id="guide-center" class="guide-app">
+  <div class="module-head center"><span class="section-mini">YOUR PERSONAL MUSEUM JOURNEY</span><h2 class="guide-heading">一人一卷 · 我的导览</h2><p>从兴趣出发，将心仪的展点收进自己的参观计划。</p></div>
+  <div class="guide-ribbon"><span>登录留迹</span><i>·</i><span>兴趣问览</span><i>·</i><span>路线入藏</span><i>·</i><span>启程导览</span><small>模拟小车 · <b id="guide-model-mode">规则演示</b></small></div>
+  <div class="guide-account"><span id="guide-username">访客</span><button id="guide-logout" class="quiet" hidden>退出账号</button></div>
+<div id="guide-notice" role="status" aria-live="polite" hidden></div>
+<section id="guide-auth" class="panel auth-panel"><div><p class="eyebrow">你的参观，有自己的记录</p><h2>让每次参观，都有迹可循</h2><p>使用邮箱登录，收藏路线随账号保存，换一台设备也能继续参观。原本机账号需重新注册。</p></div><form id="guide-auth-form"><label>邮箱<input name="username" type="email" autocomplete="username" maxlength="254" required placeholder="你的邮箱地址"></label><label>昵称（注册时可选）<input name="nickname" autocomplete="nickname" maxlength="32" placeholder="怎么称呼你"></label><label>密码<input name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required placeholder="至少 8 个字符"></label><div class="actions"><button type="submit" name="intent" value="login">登录</button><button class="secondary" type="submit" name="intent" value="register">注册账号</button></div></form></section>
+<section id="guide-password-tools" class="panel"><details><summary>忘记密码？</summary><form id="guide-recover-form"><label>注册邮箱<input name="email" type="email" autocomplete="email" required></label><button type="submit">发送重置邮件</button></form></details><form id="guide-password-form" hidden><label>设置新密码<input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></label><button type="submit">保存新密码</button></form></section><div class="workspace">
+<section id="guide-planner" class="panel"><div class="section-title"><div><p class="eyebrow">01 / 我的兴趣</p><h2>这次，你想了解什么？</h2></div><span id="guide-planner-badge" class="tag">规则演示</span></div><form id="guide-plan-form"><label for="guide-interest">告诉导览助手你的偏好</label><textarea id="guide-interest" maxlength="1000" required placeholder="例如：我想先了解学校历史，再看看文博主题。"></textarea><div class="chips"><button type="button" data-interest="我对学校历史感兴趣">学校历史</button><button type="button" data-interest="我想了解校友人物与文博主题">人物与文博</button><button type="button" data-interest="我是第一次来，希望完整参观">第一次参观</button></div><label for="guide-style">讲解方式</label><select id="guide-style"><option value="brief">简短讲解</option><option value="detailed">详细讲解</option><option value="youth">青少年视角</option></select><button id="guide-generate" class="wide" type="submit">生成我的参观方案 <span>→</span></button></form><p class="muted">未连接模型时，使用关键词匹配演示。正式展点资料仍需核实补充。</p><a id="guide-school-link" hidden target="_blank" rel="noopener noreferrer">打开学校平台智能体 ↗</a><div id="guide-plan-result" hidden><hr><div id="guide-plan-content"></div><button id="guide-save-plan" class="wide secondary">收藏这条路线</button></div></section>
+<section id="guide-collection" class="panel"><div class="section-title"><div><p class="eyebrow">02 / 个人收藏</p><h2>下次出发，从这里开始</h2></div><span id="guide-route-count" class="tag">0 条路线</span></div><div id="guide-routes" class="route-list"><div class="empty">登录后，在这里查看自己的收藏路线。</div></div></section>
+</div>
+<section id="guide-journey" class="panel journey"><div class="section-title"><div><p class="eyebrow">03 / 现场导览</p><h2>连接体验，开始出发</h2></div><span class="tag accent">SIMULATION · 模拟设备</span></div><div class="journey-grid"><div><div class="device-card"><span class="device-icon">◉</span><div><strong>智览小车 SIM-01</strong><p id="guide-device-state">登录后查看状态</p></div></div><p>演示体验码：<code id="guide-experience-code">GUIDE2026</code></p><form id="guide-claim-form" class="claim-form"><input id="guide-code" aria-label="体验码" placeholder="输入体验码" maxlength="64" required><button type="submit">领取使用权</button></form><p id="guide-lease" class="muted">一次领取可体验 20 分钟，同一时刻只允许一位使用者。</p><button id="guide-release" class="quiet">释放使用权</button><hr><label for="guide-selected-route">选择已收藏路线</label><select id="guide-selected-route"><option value="">请先收藏路线</option></select><button id="guide-start" class="wide">开始模拟导览 →</button><button id="guide-stop" class="wide stop" disabled>停止当前导览</button><details><summary>模拟故障测试</summary><p class="muted">只影响模拟器，用于检查异常处理。断线后任务不会自动恢复。</p><div class="actions"><button id="guide-disconnect" class="secondary">模拟断线</button><button id="guide-reconnect" class="secondary">恢复连接</button></div></details></div><div class="progress-panel"><div class="section-title"><h3>本次导览</h3><span id="guide-task-status" class="tag">尚未开始</span></div><p id="guide-task-title" class="muted">从收藏中选择路线，即可体验完整流程。</p><div id="guide-progress-stops" class="progress-stops"></div><ol id="guide-events" class="events"><li>这里将显示模拟出发、到站、讲解和完成事件。</li></ol></div></div></section>
+
+</section>
+<section class="project section-reveal" id="project">
       <div class="module-grid two-col">
         <article class="panel logs-panel">
           <div class="module-head left compact">
             <img class="title-art small-title-img" src="./assets/titles/title_logs.png" alt="系统巡检日志" />
           </div>
           <div class="timeline dynamic-log" id="patrolTimeline" aria-live="polite">
-            <article class="normal"><time>10:25:18</time><b>摄像头接入</b><p>摄像头模块连接成功，实时监控画面等待刷新。</p></article>
+            <article class="normal"><time>10:25:18</time><b>摄像头接入</b><p>摄像头未连接，当前保留原版展示界面。</p></article>
             <article class="route"><time>10:25:31</time><b>路线状态</b><p>导览路线运行中，当前节点可随路线模块切换。</p></article>
             <article class="warn"><time>10:25:26</time><b>避障提醒</b><p>检测到前方障碍物，系统建议低速巡检。</p></article>
           </div>
@@ -350,7 +363,7 @@
     <a href="#collections">馆藏</a>
     <a href="#monitor-detail">监控</a>
     <a href="#route-detail">路线</a>
-    <a href="#project">项目</a>
+    <a href="#guide-center">我的导览</a><a href="#project">项目</a>
   </aside>
 
   <aside class="team-float" id="teamFloat" aria-label="研发团队">
@@ -388,7 +401,7 @@
           <div><small>主要看点</small><strong id="modalFocus">器形与纹饰</strong></div>
         </div>
         <div class="modal-actions">
-          <button class="btn primary" id="addRouteBtn" type="button">加入导览路线</button>
+          <button class="btn primary" id="addRouteBtn" type="button">加入导览兴趣</button>
           <button class="btn secondary" data-close-modal>关闭详情</button>
         </div>
       </div>
@@ -396,6 +409,6 @@
   </div>
   <div class="route-toast" id="routeToast" aria-live="polite"></div>
   <button id="backTop" class="back-top">↑</button>
-  <script src="./app.js"></script>
+  <script src="./app.js"></script><script src="./vendor/supabase.js"></script><script src="./cloud-config.js"></script><script src="./cloud-api.js"></script><script src="./guide.js"></script>
 </body>
 </html>

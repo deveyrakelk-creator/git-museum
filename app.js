@@ -311,7 +311,7 @@ let currentModalItem = null;
 function openArtifactModal(item){
   currentModalItem = item;
   const addBtn = document.querySelector('#addRouteBtn');
-  if(addBtn){ addBtn.classList.remove('added'); addBtn.textContent = '加入导览路线'; }
+  if(addBtn){ addBtn.classList.remove('added'); addBtn.textContent = '加入导览兴趣'; }
   const data = collectionData[activeCategory] || collectionData.bronze;
   $('#modalTitle').textContent = item.title;
   $('#modalImage').src = item.img;
@@ -382,7 +382,7 @@ bindLocalGlow();
 // ==================== 直连 ESP32 MJPEG 流 ====================
 const stream = $('#stream');
 const placeholder = $('#streamPlaceholder');
-const ESP32_STREAM = 'http://10.231.134.200:81/stream';
+const ESP32_STREAM = ''; // Software-only preview: no private hardware connections.
 
 function stopStream() {
     stream.src = '';
@@ -392,6 +392,7 @@ function stopStream() {
 
 function connectStream() {
     stopStream();
+    if (!ESP32_STREAM) { if (placeholder) placeholder.style.display = 'grid'; return; }
     stream.src = ESP32_STREAM;
 }
 
@@ -502,7 +503,7 @@ function tryRadarSocket() {
     };
   } catch (e) {}
 }
-tryRadarSocket();
+// Radar remains an explicitly labeled visual simulation.
 
 window.dispatchEvent(new Event('scroll'));
 
@@ -641,11 +642,11 @@ window.dispatchEvent(new Event('scroll'));
 })();
 
 const patrolLogTypes = [
-  {kind:'normal', title:'摄像头接入', msg:'摄像头模块连接成功，实时监控画面等待刷新。'},
+  {kind:'normal', title:'摄像头接入', msg:'展示模式：摄像头尚未连接。'},
   {kind:'normal', title:'雷达扫描', msg:() => `雷达扫描角度 ${Math.round(radarState?.angle || 57)}°，当前距离 ${Math.round(radarState?.distance || 37)} cm。`},
   {kind:'warn', title:'避障提醒', msg:() => `前方距离 ${Math.round(radarState?.front || 52)} cm，系统建议保持低速巡检。`},
   {kind:'route', title:'路线状态', msg:'导览路线保持运行，当前节点可随路线模块切换。'},
-  {kind:'normal', title:'系统巡检', msg:'监控、雷达与导览模块运行状态正常。'}
+  {kind:'normal', title:'系统巡检', msg:'展示模式：雷达动画与巡检日志为模拟数据。'}
 ];
 function nowTime(){ return new Date().toLocaleTimeString('zh-CN',{hour12:false}); }
 function addPatrolLog(title, msg, kind='normal'){
@@ -653,14 +654,14 @@ function addPatrolLog(title, msg, kind='normal'){
   if(!box) return;
   const article = document.createElement('article');
   article.className = kind;
-  article.innerHTML = `<time>${nowTime()}</time><b>${title}</b><p>${typeof msg === 'function' ? msg() : msg}</p>`;
+  article.innerHTML = `<time>${nowTime()}</time><b>演示 · ${title}</b><p>${typeof msg === 'function' ? msg() : msg}</p>`;
   box.prepend(article);
   while(box.children.length > 6) box.lastElementChild.remove();
 }
 window.addPatrolLog = addPatrolLog;
 (function initPatrolLog(){
   addPatrolLog('系统启动','导览平台完成初始化，进入文物精华路线。','normal');
-  setTimeout(()=>addPatrolLog('摄像头接入','ESP32-CAM 画面接入成功，实时监控窗口开始刷新。','normal'), 400);
+  setTimeout(()=>addPatrolLog('摄像头接入','展示模式：未连接 ESP32-CAM，保留原版监控布局。','normal'), 400);
   setTimeout(()=>addPatrolLog('雷达扫描','雷达模块进入扫描状态，等待环境测距数据更新。','route'), 800);
   let i = 0;
   setInterval(()=>{
@@ -697,10 +698,12 @@ document.querySelector('#addRouteBtn')?.addEventListener('click', () => {
   renderSelectedRoute();
   const btn = document.querySelector('#addRouteBtn');
   btn.classList.add('added');
-  btn.textContent = '已加入路线';
+  btn.textContent = '已加入兴趣';
   const routeKey = activeCategory || 'lobby';
   if(window.setRouteActive) window.setRouteActive(routeKey);
-  showRouteToast(`已将“${item.title}”加入导览路线`);
+  showRouteToast(`已将“${item.title}”加入兴趣，请生成并收藏参观方案`);
+  document.querySelector('[data-close-modal]')?.click();
+  window.dispatchEvent(new CustomEvent('museum-interest', {detail: {title: item.title}}));
   addPatrolLog('导览节点加入', `展品“${item.title}”已加入当前导览路线。`, 'route');
 });
 
