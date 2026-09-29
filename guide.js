@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $ = id => document.getElementById('guide-'+id);
-const state = {user:null, csrf:'', plan:null, routes:[], device:null, config:null, polling:false,epoch:0,recovering:false};
+const state = {user:null, csrf:'', plan:null, routes:[], device:null, config:null, polling:false,epoch:0,recovering:false,narration:null};
 const labels = {moving:'模拟行驶中', explaining:'模拟到站讲解', completed:'模拟导览完成', stopped:'模拟已停止', failed:'模拟连接异常', interrupted:'模拟任务已中断'};
 const styles = {brief:'简短讲解',detailed:'详细讲解',youth:'青少年视角'};
 function tell(message, error=false){ $('notice').textContent=message; $('notice').classList.toggle('error',error); $('notice').hidden=false; }
@@ -18,19 +18,48 @@ async function api(path,method='GET',body){
 
 function needUser(){if(state.user)return true;tell('请先注册或登录，参观方案将保存在你的账号中。',true);$('auth').scrollIntoView({behavior:'smooth'});return false;}
 async function busy(button,action){if(button)button.disabled=true;try{await action();}catch(e){tell(e.message,true);}finally{if(button)button.disabled=false;if(button&&['guide-start','guide-stop','guide-release'].includes(button.id))renderDevice();}}
-function resetUser(){state.epoch++;state.recovering=false;$('password-tools').hidden=false;$('password-form').hidden=true;state.user=null;state.csrf='';state.routes=[];state.device=null;state.plan=null;$('auth').hidden=false;$('logout').hidden=true;$('username').textContent='访客';$('plan-result').hidden=true;renderRoutes();renderDevice();}
+function resetUser(){state.epoch++;state.recovering=false;$('password-tools').hidden=false;$('password-form').hidden=true;state.user=null;state.csrf='';state.routes=[];state.device=null;state.plan=null;state.narration=null;stopSpeech();$('ai').hidden=true;$('auth').hidden=false;$('logout').hidden=true;$('username').textContent='访客';$('plan-result').hidden=true;renderRoutes();renderDevice();}
 function setUser(user){state.epoch++;$('password-tools').hidden=!state.recovering;state.user=user.username;state.csrf=user.csrf;$('auth').hidden=true;$('logout').hidden=false;$('username').textContent=user.username;}
 function pathText(stops){return stops.map(s=>state.config.stations[s].name).join(' → ');}
 function planContent(plan){const fragment=document.createDocumentFragment();fragment.append(element('h3',plan.title),element('p',pathText(plan.stops),'route-path'),element('p',plan.reason),element('p',styles[plan.explanation_style]+' · 仅模拟执行','muted'));return fragment;}
+
+function stopSpeech(){if('speechSynthesis' in window)window.speechSynthesis.cancel();}
+function speak(text){
+  if(!('speechSynthesis' in window))throw new Error('当前浏览器不支持语音朗读');
+  stopSpeech();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=.95;
+  const voice=window.speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang));if(voice)utterance.voice=voice;
+  window.speechSynthesis.speak(utterance);
+}
+function renderNarration(){
+  const panel=$('ai');const narration=state.narration;
+  if(!narration){panel.hidden=true;return;}
+  panel.hidden=false;$('ai-title').textContent=narration.title||'AI 个性化讲解';
+  $('ai-status').textContent=(narration.cached?'已读取缓存 · ':'刚刚生成 · ')+(narration.model||'deepseek-flash');
+  const list=$('ai-segments');list.replaceChildren();
+  for(const segment of narration.segments||[]){
+    const card=element('article',undefined,'ai-segment');
+    const heading=element('div',undefined,'ai-segment-head');
+    heading.append(element('span',segment.station+' · '+(state.config.stations[segment.station]?.name||'展点'),'tag'),element('h3',segment.title));
+    const play=element('button','朗读此段','secondary');play.type='button';play.addEventListener('click',()=>{try{speak(segment.script+(segment.question?' '+segment.question:''));}catch(e){tell(e.message,true);}});
+    card.append(heading,element('p',segment.script));if(segment.question)card.append(element('p','互动思考：'+segment.question,'ai-question'));card.append(play);list.append(card);
+  }
+}
+async function generateNarration(route){
+  tell('DeepSeek 正在为收藏路线生成讲解，请稍候……');
+  const data=await api('/api/ai/narration','POST',{route_id:route.id});
+  state.narration={...data.narration,cached:Boolean(data.cached)};renderNarration();$('ai').scrollIntoView({behavior:'smooth',block:'start'});
+  tell(data.cached?'已读取这条路线的 AI 讲解缓存。':'AI 个性讲解已生成并保存。');
+}
+
 function renderRoutes(){
   const list=$('routes');list.replaceChildren();$('route-count').textContent=state.routes.length+' 条路线';
   const selected=$('selected-route').value;$('selected-route').replaceChildren(element('option',state.routes.length?'选择一条收藏路线':'请先收藏路线'));$('selected-route').firstChild.value='';
   if(!state.routes.length)list.append(element('div',state.user?'还没有收藏。先聊聊你的兴趣，生成第一条路线。':'登录后，在这里查看自己的收藏路线。','empty'));
   for(const route of state.routes){
     const card=element('article',undefined,'route-card');card.append(planContent(route.plan));
-    const actions=element('div',undefined,'actions');const use=element('button','用于现场导览');const remove=element('button','删除','quiet');
+    const actions=element('div',undefined,'actions');const use=element('button','用于现场导览');const ai=element('button','生成 AI 讲解','secondary');const remove=element('button','删除','quiet');
     use.addEventListener('click',()=>{$('selected-route').value=route.id;$('journey').scrollIntoView({behavior:'smooth'});tell('已选择收藏路线。领取模拟小车使用权后即可开始。');});
-    remove.addEventListener('click',()=>busy(remove,async()=>{await api('/api/routes/'+route.id,'DELETE',{});await refreshRoutes();tell('收藏已删除。');}));actions.append(use,remove);card.append(actions);list.append(card);
+    ai.addEventListener('click',()=>busy(ai,()=>generateNarration(route)));remove.addEventListener('click',()=>busy(remove,async()=>{await api('/api/routes/'+route.id,'DELETE',{});if(state.narration?.route_id===route.id){state.narration=null;renderNarration();}await refreshRoutes();tell('收藏已删除。');}));actions.append(use,ai,remove);card.append(actions);list.append(card);
     const option=element('option',route.plan.title);option.value=route.id;$('selected-route').append(option);
   }
   if(state.routes.some(r=>r.id===selected))$('selected-route').value=selected;else if(state.routes.length)$('selected-route').value=state.routes[0].id;
@@ -88,6 +117,8 @@ $('password-form').addEventListener('submit',event=>{
     event.target.reset();event.target.hidden=true;state.recovering=false;$('password-tools').hidden=true;tell('密码已更新。');
   });
 });
+$('ai-play-all').addEventListener('click',()=>{try{if(!state.narration)throw new Error('请先生成 AI 讲解');speak(state.narration.segments.map(s=>s.script+(s.question?' '+s.question:'')).join(' '));}catch(e){tell(e.message,true);}});
+$('ai-stop').addEventListener('click',stopSpeech);
 boot();
 
 })();

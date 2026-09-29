@@ -69,6 +69,16 @@
     if(path==='/api/routes') return rpc(method==='GET'?'routes':'save_route',body);
     if(path.startsWith('/api/routes/')&&method==='DELETE') return rpc('delete_route',{id:path.split('/').pop()});
     if(path==='/api/plans') return rpc('plan',body);
+    if(path==='/api/ai/narration') {
+      const {data,error}=await getClient().functions.invoke('ai-guide',{body:{route_id:body.route_id}});
+      if(error) {
+        let message='AI 讲解服务暂时不可用，请稍后重试。';
+        try { const detail=await error.context?.json(); if(detail?.error)message=detail.error; } catch(_) {}
+        const e=new Error(message);e.status=error.context?.status;throw e;
+      }
+      if(data?.error)throw new Error(data.error);
+      return data;
+    }
     if(path==='/api/device') return rpc('device');
     if(path==='/api/devices/claim') return rpc('claim',body);
     if(path==='/api/devices/release') return rpc('release');
